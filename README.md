@@ -45,6 +45,8 @@ Start:
 
 	``./api.py``
 
+ - Browse to ``http://localhost:5010/``
+
 Deployment using wsgi:
 -----------
 

@@ -5,6 +5,9 @@ Web-based audio tag editor
 - Inspired by puddletag
 - Driven by python and angular.js
 
+![screenshot](http://i.imgur.com/ZsNOPj5.png?1)
+
+
 Requirements:
 -------------
 
@@ -14,8 +17,6 @@ Requirements:
 	- requests
 	- python-magic
 	- python-Levenshtein
-
-![screenshot](http://i.imgur.com/ZsNOPj5.png?1)
 
 Installation:
 -------------

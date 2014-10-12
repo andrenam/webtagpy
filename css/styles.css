@@ -1,0 +1,74 @@
+/*
+Bootstrap 3.1 overrides from http://bootply.com
+
+This CSS code should follow the 'bootstrap.css'
+in your HTML file.
+
+license: MIT
+author: bootply.com
+*/
+
+html {
+    height: 100%;
+}
+body {
+    position: relative;
+    height: 100%;
+}
+header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 52px;
+    padding: 8px;
+}
+#side {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    bottom: 0;
+    width: 15%;
+    overflow: auto;
+    /*padding: 0 20px 0 20px;*/
+}
+#content {
+    position: absolute;
+    top: 60px;
+    left: 15%;
+    right: 20%;
+    bottom: 0;
+    right: 0;
+    width: 65%;
+    overflow: auto;
+    padding: 0 20px 0 20px;
+    font-size: 0.85em;
+}
+#tags {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    bottom: 0;
+    width: 20%;
+    overflow: auto;
+    padding: 0 20px 0 20px;
+    font-size: 0.85em;
+}	
+
+.st-selected{
+    background: #216eff !important;
+    color: white !important;
+}
+.st-sort-ascent:before{
+    content: '\25B2';
+}
+
+.st-sort-descent:before{
+    content: '\25BC';
+}
+
+#folderChangeForm input {
+    width: 350px;
+}
+
+

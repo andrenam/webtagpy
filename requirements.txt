@@ -1,0 +1,6 @@
+mutagen
+python-magic
+flask
+requests
+python-Levenshtein
+

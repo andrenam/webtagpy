@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="de" ng-app="tagApp">
+    <head>
+	    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	    <meta charset="utf-8">
+	    <title>Tag Editor</title>
+	    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	    <link href="css/bootstrap.min.css" rel="stylesheet">
+	    <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+	    
+	    <link href="css/styles.css" rel="stylesheet">
+	    <link href="bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+	    <link href="bower_components/angular-loading-bar/build/loading-bar.min.css" rel="stylesheet">
+	    <link href="bower_components/angular-treeview/css/angular.treeview.css" rel="stylesheet">
+	    <link href="bower_components/ngtoast/dist/ngToast.min.css" rel="stylesheet">
+	    
+	    <script src="bower_components/ng-file-upload/angular-file-upload-shim.min.js"></script>	    
+	    <script src="bower_components/angular/angular.min.js"></script>
+	    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
+	    <script src="bower_components/ng-file-upload/angular-file-upload.min.js"></script>
+	    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+	    <script src="bower_components/angular-treeview/angular.treeview.js"></script>
+	    <script src="bower_components/angular-smart-table/dist/smart-table.min.js"></script>
+	    <script src="bower_components/angular-animate/angular-animate.min.js"></script>
+	    <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+	    <script src="bower_components/angular-loading-bar/build/loading-bar.min.js"></script>
+	    <script src="bower_components/ngtoast/dist/ngToast.min.js"></script>
+	    <script src="bower_components/angular-resource/angular-resource.min.js"></script>
+	    
+	    <script src="js/app.js"></script>
+
+    </head>
+    <body ng-controller="FileListCtrl">
+	
+	<header>
+	    <div class="navbar navbar-default navbar-fixed-top">
+		<div class="navbar-header">
+		    <span class="navbar-brand">Tag Editor</span>
+		</div>
+
+		<form class="navbar-form" id="folderChangeForm" ng-submit="changeFolderPath(folder_data.folder_path)">
+		    <div class="input-group">
+			<input type="text" class="form-control" ng-model="folder_data.folder_path" placeholder="change folder" />
+			<div class="input-group-btn">
+			    <button class="btn btn-default" type="submit"><i class="fa fa-share"></i></button>
+			</div>
+		    </div>
+		</form>
+	    </div>	
+	</header>
+  
+	<!-- toast notifications -->
+	<ng-toast></ng-toast>
+	
+	<div id="side">
+	    <div
+		data-angular-treeview="true"
+		data-tree-id="folder_tree"
+		data-tree-model="folder_tree_data"
+		data-node-label="folder_name"
+		data-node-children="children" >
+	    </div>
+	</div>
+		
+	<div id="content">
+	    <div class="btn-group">
+		<button type="button" 
+		    class="btn btn-default btn-sm" ng-click="selectAllFiles(true)">
+		    Select all
+		</button>
+		<button type="button" 
+		    class="btn btn-default btn-sm" ng-click="selectAllFiles(false)">
+		    Select none
+		</button>
+	    </div>
+	    
+	    <div class="btn-group">
+		<button type="button" 
+		    class="btn btn-default btn-sm" ng-click="renameFiles()">
+		    Rename files
+		</button>
+	    </div>
+	    
+	    <table st-table="file_grid.data" st-safe-src="folder_data.files" class="table">
+		<thead>
+		<tr>
+			<th st-sort-default st-sort="file_name">Name</th>
+			<th st-sort="tags.artist">Artist</th>
+			<th st-sort="tags.title">Title</th>
+			<th st-sort="tags.album">Album</th>
+			<th st-sort="tags.tracknumber">Track</th>
+			<th st-sort="tags.date">Year</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr 
+		    st-select-row="file" 
+		    st-select-mode="multiple" 
+		    ng-repeat="file in file_grid.data">
+			<td st-sort-default>{{file.file_name}}</td>
+			<td>{{file.tags.artist}}</td>
+			<td>{{file.tags.title}}</td>
+			<td>{{file.tags.album}}</td>
+			<td>{{file.tags.tracknumber}}</td>
+			<td>{{file.tags.date}}</td>
+		</tr>
+		</tbody>
+	    </table>		
+	</div>
+
+	<div id="tags">
+	    <p ng-show="file_grid_selection.length > 1">
+		Selected: <em>{{file_grid_selection.length}} files</em>
+	    </p>
+
+	    <form ng-submit="saveTags()">
+		    <div class="form-group">
+			<label class="control-label">Artist</label>
+			<input type="text" class="form-control" ng-model="file_grid_selection_tags.artist" ng-disabled="file_grid_selection.length==0" />
+		    </div>
+		    
+		    <div class="form-group">
+			<label class="control-label">Title</label>
+			<input type="text" class="form-control" ng-model="file_grid_selection_tags.title" ng-disabled="file_grid_selection.length==0" />
+		    </div>
+		    
+		    <div class="form-group">
+			<label class="control-label">Album</label>
+			<input type="text" class="form-control" ng-model="file_grid_selection_tags.album" ng-disabled="file_grid_selection.length==0" />
+		    </div>
+		    
+		    <div class="form-group">
+			<label class="control-label">Track</label>
+			<input type="text" class="form-control" ng-model="file_grid_selection_tags.tracknumber" ng-disabled="file_grid_selection.length==0" />
+		    </div>
+		    
+		    <div class="form-group">
+			<label class="control-label">Year</label>
+			<input type="text" class="form-control" ng-model="file_grid_selection_tags.date" ng-disabled="file_grid_selection.length==0" />
+		    </div>
+		    
+		    <div class="form-group">
+			<label class="control-label">Genre</label>
+			<input type="text" class="form-control" ng-model="file_grid_selection_tags.genre" ng-disabled="file_grid_selection.length==0" />
+		    </div>
+
+		    <div class="form-group">
+			<label class="control-label">Cover Art</label>
+			<img 
+			    ng-hide="file_grid_selection.length == 0 || (coverArtUploadFilesDataUrls.length > 0 && coverArtUploadFilesDataUrls[0]) || (coverArtSearchResult != '')"
+			    ng-show="file_grid_selection_tags.coverurl != '//:0'"
+			    ng-src="{{ file_grid_selection_tags.coverurl }}" 
+			    style="max-width: 160px; max-height: 160px;"
+			    alt="Cover-Image" />
+			
+			<img 
+			    ng-hide="file_grid_selection.length==0 || (coverArtUploadFilesDataUrls.length == 0)"
+			    ng-show="coverArtUploadFilesDataUrls.length > 0 && coverArtUploadFilesDataUrls[0]" 
+			    ng-src="{{coverArtUploadFilesDataUrls[0]}}"
+			    style="max-width: 160px; max-height: 160px;"
+			    alt="Cover-Image (Upload)" />
+			    
+			<img 
+			    ng-hide="file_grid_selection.length==0 || (coverArtSearchResult == '')"
+			    ng-show="coverArtSearchResult != ''" 
+			    ng-src="{{coverArtSearchResult}}"
+			    style="max-width: 160px; max-height: 160px;"
+			    alt="Cover-Image (Online-Suche)" />
+		    </div>
+		    
+		    <div class="form-group">
+			<span class="btn btn-sm btn-default" 
+			    ng-hide="file_grid_selection.length==0 || (coverArtUploadFilesDataUrls.length > 0 && coverArtUploadFilesDataUrls[0])" 
+			    ng-disabled="file_grid_selection.length==0" 
+			    ng-click="searchCoverArt(file_grid_selection_tags.artist, file_grid_selection_tags.album)">
+			    <i class="fa fa-search"></i> Search image
+			</span>
+			
+			<span class="btn btn-sm btn-default" 
+			    ng-hide="file_grid_selection.length==0 || (coverArtUploadFilesDataUrls.length > 0 && coverArtUploadFilesDataUrls[0])" 
+			    ng-disabled="file_grid_selection.length==0" 
+			    ng-file-select="onCoverFileSelect($files)" 
+			    accept="image/*">
+			    <i class="fa fa-upload"></i> Upload image
+			</span>
+
+			<span class="btn btn-sm btn-default"
+			    ng-hide="file_grid_selection.length==0 || (coverArtUploadFilesDataUrls.length == 0 && coverArtSearchResult == '')" 
+			    ng-show="coverArtUploadFilesDataUrls.length > 0 && (coverArtUploadFilesDataUrls[0] || coverArtSearchResult != '')" 
+			    ng-click="clearCoverArtUpload()">
+			    <i class="fa fa-times"></i> Reset image
+			</span>
+			
+			<div class="checkbox" 
+			    ng-hide="file_grid_selection.length==0 || (coverArtUploadFilesDataUrls.length == 0 && coverArtSearchResult == '')" 
+			    ng-show="coverArtUploadFilesDataUrls.length > 0 && (coverArtUploadFilesDataUrls[0] || coverArtSearchResult != '')">
+			    <label>
+				<input type="checkbox" 
+				ng-model="file_grid_selection_tags.coverexport" 
+				ng-true-value="1"
+				ng-false-value="0"
+				/>
+				<span tooltip="Save cover art as folder.jpg, cover.jpg">Export cover art as files.</span>
+			    </label>
+			</div>
+		    </div>
+		    
+		    <button type="submit" class="btn btn-sm btn-default" ng-disabled="file_grid_selection.length==0">
+			<i class="fa fa-save"></i> Save
+		    </button>
+	    </form>	
+	</div>
+	
+	
+	
+	
+
+	<!-- Cover Art Search Modal Dialog -->
+	<script type="text/ng-template" id="coverArtSearch.html">
+	    <div class="modal-header">
+		<h3 class="modal-title">Search cover art</h3>
+	    </div>
+	    <div class="modal-body">
+		<p>Found this image:</p>
+		
+		<img 
+		    ng-src="{{coverArtSearchResult}}"
+		    style="max-width: 160px; max-height: 160px;"
+		    alt="Cover-Art"
+		    />
+	    </div>
+	    <div class="modal-footer">
+		<button class="btn btn-primary" ng-click="ok()">
+		    <i class="fa fa-save"></i> Select image</button>
+		<button class="btn btn-default" ng-click="cancel()">
+		    <i class="fa fa-times"></i> Cancel</button>
+	    </div>
+	</script>	
+	
+
+	<!-- Rename Files Modal Dialog -->
+	<script type="text/ng-template" id="renameFiles.html">
+	    <div class="modal-header">
+		<h3 class="modal-title">Rename files</h3>
+	    </div>
+	    <div class="modal-body">
+		<div class="row">
+		    <div class="form-group col-sm-8" ng-class="{ 'has-error': invalid_rename_format }">
+			<h4><label class="control-label">Filename format</label></h4>
+			<input type="text" class="form-control" 
+				ng-model="rename_format" />
+			<p class="small">
+			    The filename format 
+			    uses the python string formatting rules, see 
+			    <a href="https://docs.python.org/2/library/stdtypes.html#string-formatting">5.6.2. String Formatting Operations</a>
+			    in the python docs.
+			</p>
+		    </div>
+		    
+		    <div class="col-sm-4">
+			<h4>Help</h4>
+			<p class="small">The following variables are allowed:</p>
+			<p class="small">
+			    <code>artist</code>,
+			    <code>title</code>,
+			    <code>album</code>,
+			    <code>date</code>,
+			    <code>genre</code>,
+			    <code>tracknumber</code>
+			</p>
+		    </div>
+		</div>
+		
+		<div>
+		    <h4>Preview</h4>
+		    
+		    <p ng-show="invalid_rename_format">
+			Invalid filename format
+		    </p>
+		    
+		    <p ng-show="did_rename">
+			Successfully renamed files
+		    </p>
+		    
+		    <ul>
+			<li ng-repeat="rename_result in rename_results">
+			{{rename_result.old_file_name}} 
+			<i class="fa fa-long-arrow-right"></i>
+			 {{rename_result.new_file_name}}
+			</li>
+		    </ul>
+		
+		</div>
+	    </div>
+	    
+	    
+	    <div class="modal-footer">
+		<button class="btn btn-primary" ng-click="doRename()">
+		    <i class="fa fa-save"></i> Rename files</button>
+		<button class="btn btn-default" ng-click="cancel()">
+		    <i class="fa fa-times"></i> Cancel</button>
+	    </div>
+	</script>	
+  
+</body>
+
+
+</html>
+

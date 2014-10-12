@@ -15,6 +15,7 @@ Requirements:
 	- python-magic
 	- python-Levenshtein
 
+![screenshot](http://i.imgur.com/ZsNOPj5.png?1)
 
 Installation:
 -------------

@@ -22,11 +22,11 @@ Installation:
 -------------
  - Clone the repository:
  
-	``git clone http://....``
+	``git clone https://github.com/andrenam/webtagpy.git``
 	
  - Go to the cloned repository:
  
-	``cd ...``
+	``cd webtagpy``
 	
  - Install python requirements:
  

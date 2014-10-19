@@ -51,15 +51,15 @@ def encodeId(path):
 def decodeId(id):
 	return base64.b64decode(id)
 	
-def readFolders(folder_path, level=0):
+def readFolders(folder_path, level=0, maxLevel=1):
 	folders = []
 	try:
 		root, ds, fs = next(os.walk(folder_path))
 		for d in sorted(ds):
 			p = os.path.join(root,d)
-			if level < 1:
+			if level < maxLevel:
 				try:
-					subfolders = readFolders(p, level+1)
+					subfolders = readFolders(p, level+1, maxLevel)
 				except StopIteration:
 					subfolders = []
 					pass
@@ -327,7 +327,20 @@ def apiFolder(folder_id):
 		logger.warning("apiFolder('%s'): folder '%s' does not exist" % (folder_id, folder_path))
 		return '', 404
 
+	try:
+		maxLevel = request.args.get('maxLevel')
+		if maxLevel:
+			maxLevel = int(maxLevel)
+			if maxLevel < 0:
+				maxLevel = 1
+			if maxLevel > 3:
+				maxLevel = 3
+		else:
+			maxLevel = 1
+	except:
+		maxLevel = 1
 
+	
 	# get list of sub-folders and files in this directory
 	files = []
 	parent = os.path.abspath(os.path.dirname(folder_path))
@@ -335,7 +348,7 @@ def apiFolder(folder_id):
 				'folder_path': parent,
 				'folder_name': '..',
 				'folders': []} ]
-	folders = folders + readFolders(folder_path)
+	folders = folders + readFolders(folder_path, 0, maxLevel)
 	
 	try:
 		root, ds, fs = next(os.walk(folder_path))

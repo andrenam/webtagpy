@@ -57,7 +57,7 @@ def readFolders(folder_path, level=0):
 		root, ds, fs = next(os.walk(folder_path))
 		for d in sorted(ds):
 			p = os.path.join(root,d)
-			if level < 4:
+			if level < 1:
 				try:
 					subfolders = readFolders(p, level+1)
 				except StopIteration:
@@ -321,7 +321,7 @@ def apiFolder(folder_id):
 	if folder_id:
 		folder_path = decodeId(folder_id)
 	else:
-		folder_path = '/'
+		folder_path = os.path.expanduser('~')
 		folder_id = encodeId(folder_path)
 	if not folder_path or not os.path.exists(folder_path) or not os.path.isdir(folder_path):
 		logger.warning("apiFolder('%s'): folder '%s' does not exist" % (folder_id, folder_path))
@@ -337,17 +337,20 @@ def apiFolder(folder_id):
 				'folders': []} ]
 	folders = folders + readFolders(folder_path)
 	
-	root, ds, fs = next(os.walk(folder_path))
-	for f in sorted(fs):
-		p = os.path.join(root,f)
-		if f.endswith(('.mp3','.flac')):
-			files.append({'file_id': encodeId(p),
-						  'file_path': p,
-						  'file_name': f,
-			})
+	try:
+		root, ds, fs = next(os.walk(folder_path))
+		for f in sorted(fs):
+			p = os.path.join(root,f)
+			if f.endswith(('.mp3','.flac')):
+				files.append({'file_id': encodeId(p),
+							  'file_path': p,
+							  'file_name': f,
+				})
+	except StopIteration:
+		pass
+	except:
+		logger.exception("exception in apiFolder('%s'):" % (folder_id))
 	
-	folders = folders
-	files = files
 			
 	return jsonify(**{'folder_id': folder_id,
 			'folder_path': folder_path,

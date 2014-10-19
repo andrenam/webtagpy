@@ -296,7 +296,8 @@ tagApp.controller('FileListCtrl', ['$scope', 'FolderService', 'FilesService', 'C
 					'folder_name': folders[i].folder_name,
 					'folder_id': folders[i].folder_id,
 					'folder_path': folders[i].folder_path,
-					'collapsed': false,
+					//'collapsed': false,
+					'collapsed': true,
 					'children': children
 				};
 				treeData.push(folderData);
@@ -379,6 +380,50 @@ tagApp.controller('FileListCtrl', ['$scope', 'FolderService', 'FilesService', 'C
 					$scope.changeFolder($scope.folder_tree.currentNode.folder_id);
 			}
 		});
+		
+		
+		// watch for changes in folder_tree .. collapsed status
+		// to see which folders are expanded
+		findExpandedFolder = function findExpandedFolderFn(newValue, oldValue) {
+			if (newValue.length == oldValue.length) {
+				for (var i=0;i<newValue.length;i++) {
+					if (newValue[i].collapsed != oldValue[i].collapsed && !newValue[i].collapsed) {
+						return newValue[i];
+					}
+					if (newValue[i].children.length > 0 && oldValue[i].children.length > 0) {
+						var ret = findExpandedFolderFn(newValue[i].children, oldValue[i].children);
+						if (ret !== false) {
+							return ret;
+						}
+					}
+				}
+			}
+			return false;
+		}
+		
+		// watch for changes in folder_tree .. collapsed status
+		// to see which folders are expanded
+		$scope.$watch('folder_tree_data', function (newValue, oldValue) {
+			var expandedFolder = findExpandedFolder($scope.folder_tree_data, oldValue);
+			if (expandedFolder !== false) {
+				// re-load files and folders for that node
+				if (expandedFolder.children.length == 0 
+					&& (!expandedFolder.hasOwnProperty('_expandedReload') || !expandedFolder._expandedReload)) {
+					// load files and folders 
+					FolderService.get(
+						{'folder_id': expandedFolder.folder_id},
+						function (data) {
+							expandedFolder._expandedReload = true;
+							if (data.folders.length > 0) {
+								if (data.folders[0].folder_name == '..')
+									data.folders.splice(0,1);
+								expandedFolder.children = buildTreeData(data.folders);
+							}
+						});
+				}
+			}
+			
+		}, true);
 		
 		
 		// open modal dialog for file renaming

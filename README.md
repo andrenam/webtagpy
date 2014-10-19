@@ -11,7 +11,7 @@ Web-based audio tag editor
 Requirements:
 -------------
 
-- python
+- python2 (not tested with python3)
 	- mutagen
 	- flask
 	- requests

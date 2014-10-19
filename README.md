@@ -36,7 +36,11 @@ Installation:
 
 	``bower install``
 
- - Edit webtagpy.cfg config file
+ - Edit webtagpy.cfg config file (optional). You can specify a log file. Make sure it's writeable for the user that runs webtagpy:
+ 
+    [base]
+    
+    log_file = /var/log/webtagpy.log
 
 
 Start:

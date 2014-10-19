@@ -51,20 +51,32 @@ def encodeId(path):
 def decodeId(id):
 	return base64.b64decode(id)
 	
-def readFolders(folder_path):
+def readFolders(folder_path, level=0):
 	folders = []
 	try:
 		root, ds, fs = next(os.walk(folder_path))
-		for d in ds:
+		for d in sorted(ds):
 			p = os.path.join(root,d)
-			subfolders = readFolders(p)
+			if level < 4:
+				try:
+					subfolders = readFolders(p, level+1)
+				except StopIteration:
+					subfolders = []
+					pass
+				except:
+					subfolders = []
+					logger.exception("Exception in readFolders('%s', '%s'):" % (p, level+1))
+			else:
+				subfolders = []
 			if not d.startswith('.'):
 				folders.append({'folder_id': encodeId(p),
 							'folder_path': p,
 							'folder_name': d,
 							'folders': subfolders})
+	except StopIteration:
+		pass
 	except:
-		logger.exception("Exception in readFolders():")
+		logger.exception("Exception in readFolders('%s'):" % folder_path)
 	
 	return folders
 
@@ -324,8 +336,9 @@ def apiFolder(folder_id):
 				'folder_name': '..',
 				'folders': []} ]
 	folders = folders + readFolders(folder_path)
+	
 	root, ds, fs = next(os.walk(folder_path))
-	for f in fs:
+	for f in sorted(fs):
 		p = os.path.join(root,f)
 		if f.endswith(('.mp3','.flac')):
 			files.append({'file_id': encodeId(p),
@@ -333,8 +346,8 @@ def apiFolder(folder_id):
 						  'file_name': f,
 			})
 	
-	folders = sorted(folders)
-	files = sorted(files)
+	folders = folders
+	files = files
 			
 	return jsonify(**{'folder_id': folder_id,
 			'folder_path': folder_path,

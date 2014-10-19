@@ -3,7 +3,7 @@ var tagApp = angular.module('tagApp', [
     'ui.bootstrap', 
     'ngAnimate',
     'ngResource',
-    'ngCookies',
+    'ipCookie',
     'angular-loading-bar',
     'angularTreeview',
     'smart-table',
@@ -48,8 +48,8 @@ tagApp.factory('FileRenameService', ['$resource',
   
 
 // FileListCtrl Controller  
-tagApp.controller('FileListCtrl', ['$scope', 'FolderService', 'FilesService', 'CoverSearchService', '$upload', '$timeout', '$modal', '$cookies', 'ngToast', 
-    function ($scope, FolderService, FilesService, CoverSearchService, $upload, $timeout, $modal, $cookies, ngToast) {
+tagApp.controller('FileListCtrl', ['$scope', 'FolderService', 'FilesService', 'CoverSearchService', '$upload', '$timeout', '$modal', 'ipCookie', 'ngToast', 
+    function ($scope, FolderService, FilesService, CoverSearchService, $upload, $timeout, $modal, ipCookie, ngToast) {
 		// initialize/reset all data
 		$scope.resetData = function() {
 			$scope.folder_data = {};
@@ -321,7 +321,8 @@ tagApp.controller('FileListCtrl', ['$scope', 'FolderService', 'FilesService', 'C
 				{'folder_id': folder_id},
 				function (data) {
 					// save folder_id to cookie
-					$cookies.folder_id = folder_id;
+					ipCookie('webtagpy_folder_id', folder_id, { expires: 180 });
+					
 					// assign loaded files and folders to scope
 					$scope.folder_data = data;
 					// assign to grid
@@ -356,8 +357,8 @@ tagApp.controller('FileListCtrl', ['$scope', 'FolderService', 'FilesService', 'C
 		}*/
 		
         // initially load files and folders in "default directory"
-        if ($cookies.folder_id) {
-			$scope.changeFolder($cookies.folder_id);
+        if (ipCookie('webtagpy_folder_id') !== undefined) {
+			$scope.changeFolder(ipCookie('webtagpy_folder_id'));
 		}
 		else {
 			$scope.changeFolder('');
@@ -424,8 +425,8 @@ tagApp.controller('CoverArtSearchCtrl', ['$scope', '$modalInstance', 'coverArtSe
 	}]);
 
 
-tagApp.controller('RenameFilesCtrl', ['$scope', '$modalInstance', '$timeout', '$cookies', 'selected_files', 'FileRenameService', 'ngToast', 
-	function ($scope, $modalInstance, $timeout, $cookies, selected_files, FileRenameService, ngToast) {
+tagApp.controller('RenameFilesCtrl', ['$scope', '$modalInstance', '$timeout', 'ipCookie', 'selected_files', 'FileRenameService', 'ngToast', 
+	function ($scope, $modalInstance, $timeout, ipCookie, selected_files, FileRenameService, ngToast) {
 		$scope.selected_files = selected_files;
 		$scope.file_ids = [];
 		for (var i=0; i<$scope.selected_files.length;i++) {
@@ -433,8 +434,8 @@ tagApp.controller('RenameFilesCtrl', ['$scope', '$modalInstance', '$timeout', '$
 		}
 		
 		// load rename_format from cookie
-		$scope.rename_format = $cookies.rename_format;
-		if (!$scope.rename_format) {
+		$scope.rename_format = ipCookie('webtagpy_rename_format');
+		if ($scope.rename_format === undefined || !$scope.rename_format) {
 			$scope.rename_format = '%(artist)s - %(tracknumber)02d - %(title)s';
 		}
 		
@@ -499,7 +500,7 @@ tagApp.controller('RenameFilesCtrl', ['$scope', '$modalInstance', '$timeout', '$
 		$scope.$watch('rename_format', function(newValue, oldValue) {
 			$timeout.cancel(timeoutPromise);
 			timeoutPromise = $timeout(function () {
-				$cookies.rename_format = $scope.rename_format;
+				ipCookie('webtagpy_rename_format', $scope.rename_format, { expires: 180 });
 				$scope.preview();
 			}, 500);
 		});

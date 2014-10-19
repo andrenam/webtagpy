@@ -42,7 +42,8 @@
 		    <div class="input-group">
 			<input type="text" class="form-control" ng-model="folder_data.folder_path" placeholder="change folder" />
 			<div class="input-group-btn">
-			    <button class="btn btn-default" type="submit"><i class="fa fa-share"></i></button>
+			    <span class="btn btn-default" ng-click="folderChangeDialog(folder_data.folder_path)" title="Select folder" tooltip="Select folder"><i class="fa fa-folder-open"></i></span>
+			    <button class="btn btn-default" type="submit" title="Change folder" tooltip="Change folder"><i class="fa fa-share"></i></button>
 			</div>
 		    </div>
 		</form>
@@ -301,6 +302,36 @@
 		    <i class="fa fa-times"></i> Cancel</button>
 	    </div>
 	</script>	
+
+
+
+	<!-- Folder Change Modal Dialog -->
+	<script type="text/ng-template" id="folderChangeDialog.html">
+	    <div class="modal-header">
+		<h3 class="modal-title">Select folder</h3>
+	    </div>
+	    <div class="modal-body">
+		
+		<p ng-show="change_folder_tree.currentNode">
+		    Selected path: <code>{{change_folder_tree.currentNode.folder_path}}</code>
+		</p>
+		
+		<div
+		    data-angular-treeview="true"
+		    data-tree-id="change_folder_tree"
+		    data-tree-model="folder_tree_data"
+		    data-node-label="folder_name"
+		    data-node-children="children" >
+		</div>
+
+	    </div>
+	    <div class="modal-footer">
+		<button class="btn btn-primary" ng-disable="!change_folder_tree.currentNode" ng-click="ok()">
+		    <i class="fa fa-folder-open"></i> Select folder</button>
+		<button class="btn btn-default" ng-click="cancel()">
+		    <i class="fa fa-times"></i> Cancel</button>
+	    </div>
+	</script>
   
 </body>
 

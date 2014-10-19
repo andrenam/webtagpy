@@ -451,7 +451,20 @@ tagApp.controller('FileListCtrl', ['$scope', 'FolderService', 'FilesService', 'C
 
 			}
 		};
+		
+		
+		// open modal dialog for folder selection
+		$scope.folderChangeDialog = function(folder_path) {
+			// open modal dialog
+			var modalInstance = $modal.open({
+			  templateUrl: 'folderChangeDialog.html',
+			  controller: 'FolderChangeDialogCtrl',
+			});
 
+			modalInstance.result.then(function (result) {
+				$scope.changeFolder(result);
+			});			
+		}
     }]);
 
 
@@ -555,3 +568,51 @@ tagApp.controller('RenameFilesCtrl', ['$scope', '$modalInstance', '$timeout', 'i
 			$modalInstance.dismiss('cancel');
 		};
 	}]);
+	
+	
+tagApp.controller('FolderChangeDialogCtrl', ['$scope', '$modalInstance', 'FolderService', 
+	function ($scope, $modalInstance, FolderService) {
+		$scope.folder_tree_data = [];
+		var root_folder_id = window.btoa('/');
+		
+		FolderService.get(
+				{folder_id: root_folder_id, 'maxLevel': 0},
+				function (data) {
+					// recursively build tree data
+					data.folders.splice(0,1);
+					$scope.folder_tree_data = buildTreeData(data.folders);
+				});
+		
+		// watch for changes in folder_tree .. collapsed status
+		// to see which folders are expanded
+		$scope.$watch('folder_tree_data', function (newValue, oldValue) {
+			var expandedFolder = findExpandedFolder($scope.folder_tree_data, oldValue);
+			if (expandedFolder !== false) {
+				// re-load files and folders for that node
+				if (expandedFolder.children.length == 0 
+					&& (!expandedFolder.hasOwnProperty('_expandedReload') || !expandedFolder._expandedReload)) {
+					// load files and folders 
+					FolderService.get(
+						{'folder_id': expandedFolder.folder_id},
+						function (data) {
+							expandedFolder._expandedReload = true;
+							if (data.folders.length > 0) {
+								if (data.folders[0].folder_name == '..')
+									data.folders.splice(0,1);
+								expandedFolder.children = buildTreeData(data.folders);
+							}
+						});
+				}
+			}
+			
+		}, true);
+		
+		$scope.ok = function () {
+			$modalInstance.close($scope.change_folder_tree.currentNode.folder_id);
+		};
+
+		$scope.cancel = function () {
+			$modalInstance.dismiss('cancel');
+		};		
+	}]);
+	

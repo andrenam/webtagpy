@@ -309,8 +309,7 @@ def apiFolder(folder_id):
 	if folder_id:
 		folder_path = decodeId(folder_id)
 	else:
-		folder_path = '/media/music/Musik/Musik1'
-		folder_path = '/tmp/test'
+		folder_path = '/'
 		folder_id = encodeId(folder_path)
 	if not folder_path or not os.path.exists(folder_path) or not os.path.isdir(folder_path):
 		logger.warning("apiFolder('%s'): folder '%s' does not exist" % (folder_id, folder_path))
